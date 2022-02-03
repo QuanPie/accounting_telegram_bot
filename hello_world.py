@@ -1,15 +1,16 @@
+from telegram.ext import Updater
+import logging
+from telegram import Update
+from telegram.ext import CallbackContext
+from telegram.ext import CommandHandler
+from telegram.ext import MessageHandler, Filters
+from telegram import InlineQueryResultArticle, InputTextMessageContent
+from telegram.ext import InlineQueryHandler
+
 # import telegram
 # bot = telegram.Bot(token='5228328595:AAH35Qe5QSCyHKgJDNmWGv6JRrsB5CXjdaI')
 # print(bot.get_me())
 
-from telegram.ext import InlineQueryHandler
-from telegram import InlineQueryResultArticle, InputTextMessageContent
-from telegram.ext import MessageHandler, Filters
-from telegram.ext import CommandHandler
-from telegram.ext import CallbackContext
-from telegram import Update
-import logging
-from telegram.ext import Updater
 
 updater = Updater(
     token='5228328595:AAH35Qe5QSCyHKgJDNmWGv6JRrsB5CXjdaI', use_context=True)
