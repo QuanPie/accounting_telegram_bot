@@ -1,85 +1,50 @@
-from telegram.ext import Updater
+#!/usr/bin/env python
+# pylint: disable=C0116,W0613
+# This program is dedicated to the public domain under the CC0 license.
+
 import logging
+
+from telegram.ext import Updater, CommandHandler, CallbackContext
 from telegram import Update
-from telegram.ext import CallbackContext
-from telegram.ext import CommandHandler
-from telegram.ext import MessageHandler, Filters
-from telegram import InlineQueryResultArticle, InputTextMessageContent
-from telegram.ext import InlineQueryHandler
-
-# import telegram
-# bot = telegram.Bot(token='5228328595:AAH35Qe5QSCyHKgJDNmWGv6JRrsB5CXjdaI')
-# print(bot.get_me())
-
-
-updater = Updater(
-    token='5228328595:AAH35Qe5QSCyHKgJDNmWGv6JRrsB5CXjdaI', use_context=True)
-dispatcher = updater.dispatcher
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def start(update: Update, context: CallbackContext):
+    """send start message"""
     context.bot.send_message(
-        chat_id=update.effective_chat.id, text="I'm a bot, please talk to me!")
+        chat_id=update.effective_chat.id, text="This is a accounting bot, send /help to know more")
 
 
-def hello(update: Update, context: CallbackContext):
+def help(update: Update, context: CallbackContext):
+    """send message of help"""
+    """
+        help - See list of support commands
+        start - See inital message
+        new - Add new item
+        history - See history
+        version - Show bot version and details
+    """
     context.bot.send_message(
-        chat_id=update.effective_chat.id, text="hello")
-
-
-start_handler = CommandHandler('start', start)
-hello_handler = CommandHandler('hello', hello)
-dispatcher.add_handler(start_handler)
-dispatcher.add_handler(hello_handler)
-
-
-def echo(update: Update, context: CallbackContext):
-    context.bot.send_message(
-        chat_id=update.effective_chat.id, text=update.message.text)
-
-
-echo_handler = MessageHandler(Filters.text & (~Filters.command), echo)
-dispatcher.add_handler(echo_handler)
-
-
-def caps(update: Update, context: CallbackContext):
-    text_caps = ' '.join(context.args).upper()
-    context.bot.send_message(chat_id=update.effective_chat.id, text=text_caps)
-
-
-caps_handler = CommandHandler('caps', caps)
-dispatcher.add_handler(caps_handler)
-
-
-def inline_caps(update: Update, context: CallbackContext):
-    query = update.inline_query.query
-    if not query:
-        return
-    results = []
-    results.append(
-        InlineQueryResultArticle(
-            id=query.upper(),
-            title='Caps',
-            input_message_content=InputTextMessageContent(query.upper())
-        )
+        chat_id=update.effective_chat.id, text="/help - See list of support commands\n"
+        "/start - See inital message\n"
+        "/new - Add new item\n"
+        "/history - See history\n"
+        "/version - Show bot version and details\n"
     )
-    context.bot.answer_inline_query(update.inline_query.id, results)
 
 
-inline_caps_handler = InlineQueryHandler(inline_caps)
-dispatcher.add_handler(inline_caps_handler)
+def main():
+    # creat updater and pass it your bot's token
+    updater = Updater(token='5228328595:AAH35Qe5QSCyHKgJDNmWGv6JRrsB5CXjdaI')
+
+    updater.dispatcher.add_handler(CommandHandler('start', start))
+    updater.dispatcher.add_handler(CommandHandler('help', help))
+    # start the bot
+    updater.start_polling()
 
 
-def unknown(update: Update, context: CallbackContext):
-    context.bot.send_message(chat_id=update.effective_chat.id,
-                             text="Sorry, I didn't understand that command.")
-
-
-unknown_handler = MessageHandler(Filters.command, unknown)
-dispatcher.add_handler(unknown_handler)
-
-
-updater.start_polling()
+if __name__ == "__main__":
+    main()
