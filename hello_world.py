@@ -3,7 +3,7 @@
 # This program is dedicated to the public domain under the CC0 license.
 
 import logging
-from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackContext, CallbackQueryHandler, Filters
 from telegram import InlineKeyboardButton, ReplyKeyboardMarkup, Update, InlineKeyboardMarkup
 
 logging.basicConfig(
@@ -12,9 +12,16 @@ logger = logging.getLogger(__name__)
 
 
 def start(update: Update, context: CallbackContext):
-    """send start message"""
-    context.bot.send_message(
-        chat_id=update.effective_chat.id, text="Welcome this is a accounting bot, send /help to know more")
+    """send start message and show reply keyboard"""
+    reply_keyboard = [
+        ['💸 Expense', '💰 Income'],
+        ['⚖️ Balance', '🗂 History'],
+        ['🐞\n Report', '✉️ Feedback', '🚩 Version', '⚙️\nSetting'],
+    ]
+    reply_markup = ReplyKeyboardMarkup(
+        reply_keyboard, one_time_keyboard=False, resize_keyboard=True)
+    update.message.reply_text(
+        'Welcome this is a accounting bot, send /help to know more', reply_markup=reply_markup)
 
 
 def help(update: Update, context: CallbackContext):
@@ -67,13 +74,8 @@ def expense(update: Update, context: CallbackContext):
             InlineKeyboardButton("Others", callback_data="others"),
         ],
     ]
-    # keyboard = [
-    #     ['Age', 'Favourite colour'],
-    #     ['Number of siblings', 'Something else...'],
-    #     ['Done'],
-    # ]
+
     reply_markup = InlineKeyboardMarkup(keyboard)
-    # reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True)
     update.message.reply_text('Please choose:', reply_markup=reply_markup)
 
 
@@ -95,7 +97,8 @@ def main():
     updater.dispatcher.add_handler(CommandHandler('start', start))
     updater.dispatcher.add_handler(CommandHandler('help', help))
     updater.dispatcher.add_handler(CommandHandler('version', version))
-    updater.dispatcher.add_handler(CommandHandler('expense', expense))
+    updater.dispatcher.add_handler(
+        MessageHandler(Filters.regex('💸 Expense'), expense))
     updater.dispatcher.add_handler(CallbackQueryHandler(button))
     # start the bot
     updater.start_polling()
