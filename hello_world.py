@@ -3,9 +3,8 @@
 # This program is dedicated to the public domain under the CC0 license.
 
 import logging
-
-from telegram.ext import Updater, CommandHandler, CallbackContext
-from telegram import Update
+from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler
+from telegram import InlineKeyboardButton, ReplyKeyboardMarkup, Update, InlineKeyboardMarkup
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -15,25 +14,78 @@ logger = logging.getLogger(__name__)
 def start(update: Update, context: CallbackContext):
     """send start message"""
     context.bot.send_message(
-        chat_id=update.effective_chat.id, text="This is a accounting bot, send /help to know more")
+        chat_id=update.effective_chat.id, text="Welcome this is a accounting bot, send /help to know more")
 
 
 def help(update: Update, context: CallbackContext):
     """send message of help"""
-    """
-        help - See list of support commands
-        start - See inital message
-        new - Add new item
-        history - See history
-        version - Show bot version and details
+    """ for copy
+help - See list of support commands
+start - See inital message
+history - See history
+version - Show bot version and details
+expense - 💸 expense
+income - 💰 income
+balance - balance
+chart - statistic chart (pie,lin.bar...)
+feedback - Send us feedback
+report - Report bug
     """
     context.bot.send_message(
         chat_id=update.effective_chat.id, text="/help - See list of support commands\n"
         "/start - See inital message\n"
-        "/new - Add new item\n"
         "/history - See history\n"
         "/version - Show bot version and details\n"
+        "/expense - Expense\n"
+        "/income - Income\n"
+        "/balance - Balance\n"
+        "/feedback - Send us feedback\n"
     )
+
+
+def version(update: Update, context: CallbackContext):
+    """send version infomation and detail"""
+    context.bot.send_message(
+        chat_id=update.effective_chat.id, text="Bot version - 1.0.0\n\n"
+        "New feature:\n"
+        "- add function of bot version"
+    )
+
+
+def expense(update: Update, context: CallbackContext):
+
+    keyboard = [
+        [
+            InlineKeyboardButton("Food", callback_data="food"),
+            InlineKeyboardButton("Cloth", callback_data="cloth"),
+            InlineKeyboardButton("Health", callback_data="health"),
+        ],
+        [
+            InlineKeyboardButton("Live", callback_data="live"),
+            InlineKeyboardButton(
+                "Transportation", callback_data="transportation"),
+            InlineKeyboardButton("Others", callback_data="others"),
+        ],
+    ]
+    # keyboard = [
+    #     ['Age', 'Favourite colour'],
+    #     ['Number of siblings', 'Something else...'],
+    #     ['Done'],
+    # ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    # reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True)
+    update.message.reply_text('Please choose:', reply_markup=reply_markup)
+
+
+def button(update: Update, context: CallbackContext) -> None:
+    """Parses the CallbackQuery and updates the message text."""
+    query = update.callback_query
+    # CallbackQueries need to be answered, even if no notification to the user is needed
+    # Some clients may have trouble otherwise. See https://core.telegram.org/bots/api#callbackquery
+    query.answer()
+
+    query.edit_message_text(
+        text=f"How much did you cost on {query.data}? (enter the number)")
 
 
 def main():
@@ -42,6 +94,9 @@ def main():
 
     updater.dispatcher.add_handler(CommandHandler('start', start))
     updater.dispatcher.add_handler(CommandHandler('help', help))
+    updater.dispatcher.add_handler(CommandHandler('version', version))
+    updater.dispatcher.add_handler(CommandHandler('expense', expense))
+    updater.dispatcher.add_handler(CallbackQueryHandler(button))
     # start the bot
     updater.start_polling()
 
